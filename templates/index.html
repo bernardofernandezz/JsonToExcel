@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversor JSON para Excel</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Conversor JSON para Excel</h1>
+        <div class="converter-box">
+            <div class="tab-container">
+                <button class="tab-button active" data-tab="file">Upload de Arquivo</button>
+                <button class="tab-button" data-tab="text">Texto JSON</button>
+            </div>
+            
+            <div class="tab-content active" id="file-tab">
+                <form class="upload-form" action="/convert/file/" method="post" enctype="multipart/form-data">
+                    <div class="drop-zone" id="drop-zone">
+                        <p>Arraste e solte seu arquivo JSON aqui ou clique para selecionar</p>
+                        <label for="json-file-input" class="sr-only">Selecionar arquivo JSON</label>
+                        <input type="file" id="json-file-input" name="json_file" class="drop-zone-input" accept=".json" aria-label="Selecionar arquivo JSON">
+                    </div>
+                    <button type="submit" class="convert-button">Converter para Excel</button>
+                </form>
+            </div>
+            
+            <div class="tab-content" id="text-tab">
+                <form class="upload-form" action="/convert/json/" method="post" id="json-form">
+                    <textarea name="json_text" class="json-input" placeholder="Cole seu JSON aqui..." required></textarea>
+                    <button type="submit" class="convert-button">Converter para Excel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gerenciamento das tabs
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                document.getElementById(`${button.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        // Configuração da zona de arrastar e soltar
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = dropZone.querySelector('.drop-zone-input');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drop-zone-hover');
+        });
+
+        ['dragleave', 'dragend'].forEach(type => {
+            dropZone.addEventListener(type, () => {
+                dropZone.classList.remove('drop-zone-hover');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone-hover');
+
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/json') {
+                fileInput.files = e.dataTransfer.files;
+                updateDropZoneText(file.name);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                updateDropZoneText(fileInput.files[0].name);
+            }
+        });
+
+        function updateDropZoneText(fileName) {
+            const fileNameElement = dropZone.querySelector('p');
+            fileNameElement.textContent = `Arquivo selecionado: ${fileName}`;
+        }
+
+        // Manipulador do formulário JSON
+        document.getElementById('json-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('/convert/json/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail);
+                }
+                
+                // Se for bem-sucedido, obtém o arquivo
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'converted_data.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                
+            } catch (error) {
+                alert(error.message || 'JSON inválido ou erro na conversão');
+            }
+        });
+    </script>
+</body>
+</html>
