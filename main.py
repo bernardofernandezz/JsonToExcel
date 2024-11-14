@@ -91,11 +91,42 @@ async def convert_json_to_excel(json_data: dict, original_filename: str):
     Função auxiliar para converter JSON em Excel com formatação adequada
     """
     try:
+        # Mapeamento de nomes de colunas (adicione mais conforme necessário)
+        column_mapping = {
+            'id': 'ID',
+            'name': 'Nome',
+            'email': 'E-mail',
+            'phone': 'Telefone',
+            'address': 'Endereço',
+            'created_at': 'Data de Criação',
+            'updated_at': 'Data de Atualização',
+            'status': 'Status',
+            'price': 'Preço',
+            'quantity': 'Quantidade',
+            'description': 'Descrição',
+            # Adicione mais mapeamentos conforme necessário
+        }
+
         # Converte JSON para DataFrame
         if isinstance(json_data, list):
             df = pd.DataFrame(json_data)
         else:
             df = pd.DataFrame([json_data])
+        
+        # Renomeia as colunas usando o mapeamento
+        df = df.rename(columns=lambda x: column_mapping.get(x, x.replace('_', ' ').title()))
+        
+        # Formata colunas de data se existirem
+        date_columns = ['Data de Criação', 'Data de Atualização']
+        for col in date_columns:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col]).dt.strftime('%d/%m/%Y %H:%M')
+        
+        # Formata colunas de preço se existirem
+        price_columns = ['Preço']
+        for col in price_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(lambda x: f'R$ {float(x):,.2f}' if pd.notnull(x) else '')
         
         # Cria nome único para o arquivo Excel
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -188,4 +219,4 @@ async def convert_json_to_excel(json_data: dict, original_filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info") 
