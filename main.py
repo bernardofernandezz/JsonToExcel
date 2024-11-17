@@ -21,15 +21,27 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# GET / - Página inicial
+
 # Rota principal - renderiza o template HTML
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
+    """
+    Renderiza a página inicial da aplicação
+    """
     return templates.TemplateResponse("index.html", {"request": request})
 
+# POST /convert/file/ - Conversão de arquivo
 @app.post("/convert/file/")
 async def convert_file(json_file: UploadFile = File(...)):
     """
     Converte um arquivo JSON enviado para Excel
+    
+    Parameters:
+    - json_file: Arquivo JSON para conversão
+    
+    Returns:
+    - FileResponse: Arquivo Excel convertido
     """
     if not json_file.filename.endswith(".json"):
         raise HTTPException(status_code=400, detail="Por favor, envie um arquivo JSON.")
@@ -48,6 +60,12 @@ async def convert_file(json_file: UploadFile = File(...)):
 async def convert_json(json_text: str = Form(...)):
     """
     Converte JSON enviado diretamente no body para Excel
+    
+    Parameters:
+    - json_text: String contendo o JSON
+    
+    Returns:
+    - FileResponse: Arquivo Excel convertido
     """
     try:
         # Tenta fazer o parse do JSON
