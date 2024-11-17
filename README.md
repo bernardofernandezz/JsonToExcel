@@ -1,6 +1,6 @@
 # Conversor JSON para Excel
 
-Uma aplicação FastAPI que converte arquivos JSON para Excel com formatação profissional.
+Uma aplicação FastAPI que converte arquivos JSON para Excel
 
 ## 🚀 Passo a Passo para Execução
 
@@ -12,24 +12,24 @@ Uma aplicação FastAPI que converte arquivos JSON para Excel com formatação p
 ### 2. Crie um ambiente virtual
 
 # Windows
-python -m venv venv
-venv\Scripts\activate
+- python -m venv venv
+- venv\Scripts\activate
 
 # Linux/Mac
-python3 -m venv venv
-source venv/bin/activate
+- python3 -m venv venv
+- source venv/bin/activate
 
 ### 3. Instale as dependências
 
-pip install fastapi uvicorn pandas openpyxl jinja2 python-multipart
+- pip install fastapi uvicorn pandas openpyxl jinja2 python-multipart
 
 ### 4. Execute o servidor (escolha uma das opções)
 
 # Opção 1 - Usando python
-python main.py
+- python main.py
 
 # Opção 2 - Usando uvicorn
-uvicorn main:app --reload
+- uvicorn main:app --reload
 
 ### 5. Acesse a aplicação
 - Interface web: http://localhost:8000
