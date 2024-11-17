@@ -1,6 +1,6 @@
 # Conversor JSON para Excel
 
-Uma aplicação FastAPI que converte arquivos JSON para Excel com formatação profissional.
+Uma aplicação FastAPI que converte arquivos JSON para Excel
 
 ## 🚀 Passo a Passo para Execução
 
