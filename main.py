@@ -56,7 +56,7 @@ async def convert_json(json_text: str = Form(...)):
         # Verifica se o JSON é um dicionário ou lista
         if not isinstance(json_data, (dict, list)):
             raise HTTPException(status_code=400, detail="O JSON deve ser um objeto ou array")
-            
+                
         # Se for uma lista de objetos, converte diretamente
         if isinstance(json_data, list):
             df = pd.DataFrame(json_data)
